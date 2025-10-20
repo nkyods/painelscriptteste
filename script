@@ -1,0 +1,186 @@
+-- LocalScript
+
+local Player = game.Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+
+-- Criação da interface principal
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PainelBase"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- Frame principal do menu
+local MenuFrame = Instance.new("Frame")
+MenuFrame.Size = UDim2.new(0, 400, 0, 250)
+MenuFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+MenuFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MenuFrame.BorderSizePixel = 0
+MenuFrame.Visible = false
+MenuFrame.Active = true
+MenuFrame.Draggable = true
+MenuFrame.Parent = ScreenGui
+
+-- Barra de título
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 35)
+TitleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TitleBar.Parent = MenuFrame
+
+local TitleText = Instance.new("TextLabel")
+TitleText.Size = UDim2.new(1, -70, 1, 0)
+TitleText.Position = UDim2.new(0, 10, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "Painel de Teste"
+TitleText.TextColor3 = Color3.new(1, 1, 1)
+TitleText.Font = Enum.Font.SourceSansBold
+TitleText.TextSize = 20
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.Parent = TitleBar
+
+-- Botão minimizar
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
+MinimizeButton.Position = UDim2.new(1, -60, 0, 0)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.Font = Enum.Font.SourceSansBold
+MinimizeButton.TextSize = 24
+MinimizeButton.Parent = TitleBar
+
+-- Botão fechar
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 30, 1, 0)
+CloseButton.Position = UDim2.new(1, -30, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(90, 60, 60)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 20
+CloseButton.Parent = TitleBar
+
+-- Conteúdo geral
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, 0, 1, -35)
+Content.Position = UDim2.new(0, 0, 0, 35)
+Content.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Content.Parent = MenuFrame
+
+-- Menu lateral
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 100, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Sidebar.Parent = Content
+
+-- Área de conteúdo dinâmico
+local MainArea = Instance.new("Frame")
+MainArea.Size = UDim2.new(1, -100, 1, 0)
+MainArea.Position = UDim2.new(0, 100, 0, 0)
+MainArea.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+MainArea.Parent = Content
+
+-- Função para criar botões laterais
+local function criarBotao(nome, ordem)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, 0, 0, 35)
+	btn.Position = UDim2.new(0, 0, 0, (ordem - 1) * 40 + 10)
+	btn.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+	btn.Text = nome
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 18
+	btn.Parent = Sidebar
+	return btn
+end
+
+-- Criando botões das categorias
+local botoes = {
+	Player = criarBotao("Player", 1),
+	Visual = criarBotao("Visual", 2),
+	Outro = criarBotao("Outro", 3),
+	Criadores = criarBotao("Criadores", 4)
+}
+
+-- Criando frames de conteúdo para cada aba
+local abas = {}
+
+local function criarAba(nome, texto)
+	local aba = Instance.new("Frame")
+	aba.Size = UDim2.new(1, 0, 1, 0)
+	aba.BackgroundTransparency = 1
+	aba.Visible = false
+	aba.Parent = MainArea
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, -20, 1, -20)
+	label.Position = UDim2.new(0, 10, 0, 10)
+	label.BackgroundTransparency = 1
+	label.Text = texto
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.SourceSans
+	label.TextSize = 18
+	label.TextWrapped = true
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextYAlignment = Enum.TextYAlignment.Top
+	label.Parent = aba
+
+	abas[nome] = aba
+end
+
+-- Conteúdo exemplo
+criarAba("Player", "Aqui ficarão opções do jogador, como velocidade, pulo, etc.")
+criarAba("Visual", "Aqui ficarão opções visuais, como brilho, cores e estilo.")
+criarAba("Outro", "Configurações diversas e ferramentas adicionais.")
+criarAba("Criadores", "Painel criado por Breno e equipe de testes.")
+
+-- Função para trocar aba
+local function mostrarAba(nome)
+	for _, aba in pairs(abas) do
+		aba.Visible = false
+	end
+	if abas[nome] then
+		abas[nome].Visible = true
+	end
+end
+
+-- Conectando os botões às abas
+for nome, btn in pairs(botoes) do
+	btn.MouseButton1Click:Connect(function()
+		mostrarAba(nome)
+	end)
+end
+
+-- Estado inicial
+mostrarAba("Player")
+
+-- Variáveis de controle
+local menuAberto = false
+local minimizado = false
+
+-- Toggle com Shift direito
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.RightShift then
+		menuAberto = not menuAberto
+		MenuFrame.Visible = menuAberto
+	end
+end)
+
+-- Minimizar
+MinimizeButton.MouseButton1Click:Connect(function()
+	minimizado = not minimizado
+	if minimizado then
+		Content.Visible = false
+		MenuFrame.Size = UDim2.new(0, 400, 0, 35)
+	else
+		Content.Visible = true
+		MenuFrame.Size = UDim2.new(0, 400, 0, 250)
+	end
+end)
+
+-- Fechar
+CloseButton.MouseButton1Click:Connect(function()
+	menuAberto = false
+	MenuFrame.Visible = false
+end)
